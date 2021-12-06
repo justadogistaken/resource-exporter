@@ -63,8 +63,8 @@ func GetKubeletConfigFromLocalFile(kubeletConfigPath string) (*kubeletconfigv1be
 	return kubeletConfig, nil
 }
 
-// GetkubeletConfig get kubelet configuration from kubelet config file
-func GetkubeletConfig(confPath string, resReserved map[string]string) bool {
+// GetKubeletConfig get kubelet configuration from kubelet config file
+func GetKubeletConfig(confPath string, resReserved map[string]string) bool {
 	klConfig, err := GetKubeletConfigFromLocalFile(confPath)
 	if err != nil {
 		klog.Errorf("Get topology Manager Policy failed, err: %v", err)
@@ -74,6 +74,7 @@ func GetkubeletConfig(confPath string, resReserved map[string]string) bool {
 	var isChange bool = false
 	policy := make(map[v1alpha1.PolicyName]string)
 	policy[v1alpha1.CPUManagerPolicy] = klConfig.CPUManagerPolicy
+	policy[v1alpha1.MemoryManagerPolicy] = klConfig.MemoryManagerPolicy
 	policy[v1alpha1.TopologyManagerPolicy] = klConfig.TopologyManagerPolicy
 
 	if !reflect.DeepEqual(config.topoPolicy, policy) {
@@ -96,10 +97,23 @@ func GetkubeletConfig(confPath string, resReserved map[string]string) bool {
 		isChange = true
 	}
 
+	var memoryReserved string
+	if _, ok := resReserved[string(v1.ResourceMemory)]; ok {
+		memoryReserved = resReserved[string(v1.ResourceMemory)]
+	} else {
+		memoryReserved = klConfig.KubeReserved[string(v1.ResourceMemory)]
+	}
+
+	if config.resReserved[string(v1.ResourceMemory)] != memoryReserved {
+		config.resReserved[string(v1.ResourceMemory)] = memoryReserved
+		isChange = true
+	}
+
 	return isChange
 }
 
 func init() {
 	config.topoPolicy[v1alpha1.CPUManagerPolicy] = "none"
+	config.topoPolicy[v1alpha1.MemoryManagerPolicy] = "none"
 	config.topoPolicy[v1alpha1.TopologyManagerPolicy] = "none"
 }

@@ -47,7 +47,7 @@ func getNumaTopoClient(argument *args.Argument) (*versioned.Clientset, error) {
 	return versioned.NewForConfigOrDie(config), err
 }
 
-func numatopoIsExist(client *versioned.Clientset) (bool, error) {
+func numaTopoExist(client *versioned.Clientset) (bool, error) {
 	hostname := os.Getenv("MY_NODE_NAME")
 	if hostname == "" {
 		return false, fmt.Errorf("get Hostname failed")
@@ -82,7 +82,7 @@ func main() {
 	}
 
 	for {
-		exist, err := numatopoIsExist(nodeInfoClient)
+		exist, err := numaTopoExist(nodeInfoClient)
 		if err != nil {
 			klog.Errorf("Get numatopo failed, err= %v", err)
 			time.Sleep(opt.CheckInterval)

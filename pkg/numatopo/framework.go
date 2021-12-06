@@ -47,7 +47,7 @@ func TopoInfoUpdate(opt *args.Argument) bool {
 	return isChg
 }
 
-// GetAllResAllocatableInfo returns the latest info abaut the allocatable nums of all resource
+// GetAllResAllocatableInfo returns the latest info about the allocatable nums of all resource
 func GetAllResAllocatableInfo() map[string]v1alpha1.ResourceInfo {
 	numaResMap := make(map[string]v1alpha1.ResourceInfo)
 
@@ -60,19 +60,36 @@ func GetAllResAllocatableInfo() map[string]v1alpha1.ResourceInfo {
 
 // GetCpusDetail returns the cpu capability topology info
 func GetCpusDetail() map[string]v1alpha1.CPUInfo {
-	for _, info := range numaMap {
-		obj := info.GetResTopoDetail()
-		cpuDetail, ok := obj.(map[string]v1alpha1.CPUInfo)
-		if !ok {
-			continue
-		}
-
-		return cpuDetail
+	info, ok := numaMap[TopoCPU]
+	// won't happen
+	if !ok {
+		return nil
+	}
+	obj := info.GetResTopoDetail()
+	cpuDetail, ok := obj.(map[string]v1alpha1.CPUInfo)
+	if !ok {
+		return nil
 	}
 
-	return nil
+	return cpuDetail
+}
+
+func GetMemoryDetail() map[int]v1alpha1.MemoryNode {
+	info, ok := numaMap[TopoMemory]
+	// won't happen
+	if !ok {
+		return nil
+	}
+	obj := info.GetResTopoDetail()
+	memDetail, ok := obj.(map[int]v1alpha1.MemoryNode)
+	if !ok {
+		return nil
+	}
+
+	return memDetail
 }
 
 func init() {
 	RegisterNumaType(NewCPUNumaInfo())
+	RegisterNumaType(NewMemoryNumaInfo())
 }

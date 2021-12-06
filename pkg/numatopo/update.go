@@ -34,7 +34,7 @@ import (
 func NodeInfoRefresh(opt *args.Argument) bool {
 	isChange := false
 
-	if GetkubeletConfig(opt.KubeletConf, opt.ResReserved) {
+	if GetKubeletConfig(opt.KubeletConf, opt.ResReserved) {
 		isChange = true
 	}
 
@@ -65,10 +65,11 @@ func CreateOrUpdateNumatopo(client *versioned.Clientset) {
 				Name: hostname,
 			},
 			Spec: v1alpha1.NumatopoSpec{
-				Policies:    GetPolicy(),
-				ResReserved: GetResReserved(),
-				NumaResMap:  GetAllResAllocatableInfo(),
-				CPUDetail:   GetCpusDetail(),
+				Policies:     GetPolicy(),
+				ResReserved:  GetResReserved(),
+				NumaResMap:   GetAllResAllocatableInfo(),
+				CPUDetail:    GetCpusDetail(),
+				MemoryDetail: GetMemoryDetail(),
 			},
 		}
 
