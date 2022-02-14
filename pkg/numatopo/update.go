@@ -64,10 +64,11 @@ func CreateOrUpdateNumatopo(client *versioned.Clientset) {
 				Name: hostname,
 			},
 			Spec: v1alpha1.NumatopoSpec{
-				Policies:    GetPolicy(),
-				ResReserved: GetResReserved(),
-				NumaResMap:  GetAllResAllocatableInfo(),
-				CPUDetail:   GetCpusDetail(),
+				Policies:     GetPolicy(),
+				ResReserved:  GetResReserved(),
+				NumaResMap:   GetAllResAllocatableInfo(),
+				CPUDetail:    GetCpusDetail(),
+				MemoryDetail: GetMemoryDetail(),
 			},
 		}
 
@@ -77,10 +78,11 @@ func CreateOrUpdateNumatopo(client *versioned.Clientset) {
 		}
 	} else {
 		numaInfo.Spec = v1alpha1.NumatopoSpec{
-			Policies:    GetPolicy(),
-			ResReserved: GetResReserved(),
-			NumaResMap:  GetAllResAllocatableInfo(),
-			CPUDetail:   GetCpusDetail(),
+			Policies:     GetPolicy(),
+			ResReserved:  GetResReserved(),
+			NumaResMap:   GetAllResAllocatableInfo(),
+			CPUDetail:    GetCpusDetail(),
+			MemoryDetail: GetMemoryDetail(),
 		}
 		_, err = client.NodeinfoV1alpha1().Numatopologies().Update(context.TODO(), numaInfo, metav1.UpdateOptions{})
 		if err != nil {

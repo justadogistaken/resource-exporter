@@ -56,8 +56,8 @@ func NewCPUNumaInfo() *CPUNumaInfo {
 }
 
 // Name return function name
-func (info *CPUNumaInfo) Name() string {
-	return "cpu"
+func (info *CPUNumaInfo) Name() numaTopoName {
+	return cpuNumaTopoName
 }
 
 func getNumaOnline(onlinePath string) []int {
@@ -142,7 +142,7 @@ func (info *CPUNumaInfo) Update(opt *args.Argument) NumaInfo {
 	newInfo := NewCPUNumaInfo()
 	newInfo.NUMANodes = getNumaOnline(filepath.Join(cpuNumaBasePath, "online"))
 	newInfo.numaCapUpdate(cpuNumaBasePath)
-	newInfo.numaAllocUpdate(opt.CPUMngstate)
+	newInfo.numaAllocUpdate(opt.CPUMngState)
 	newInfo.cpuDetail = newInfo.getAllCPUTopoInfo(opt.DevicePath)
 	if !reflect.DeepEqual(newInfo, info) {
 		return newInfo

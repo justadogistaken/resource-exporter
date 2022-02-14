@@ -79,6 +79,7 @@ func TryUpdatingResourceReservation(klConfig *kubeletconfigv1beta1.KubeletConfig
 	policy := make(map[v1alpha1.PolicyName]string)
 	policy[v1alpha1.CPUManagerPolicy] = klConfig.CPUManagerPolicy
 	policy[v1alpha1.TopologyManagerPolicy] = klConfig.TopologyManagerPolicy
+	policy[v1alpha1.MemoryManagerPolicy] = klConfig.MemoryManagerPolicy
 
 	if !reflect.DeepEqual(config.topoPolicy, policy) {
 		for key := range config.topoPolicy {
@@ -87,11 +88,17 @@ func TryUpdatingResourceReservation(klConfig *kubeletconfigv1beta1.KubeletConfig
 		isChange = true
 	}
 
-	// TODO taking memory into consideration when memory topology is added into numa info
 	var cpuReserved string
 	if _, ok := optResReserved[string(v1.ResourceCPU)]; ok {
 		cpuReserved = optResReserved[string(v1.ResourceCPU)]
-	} else {
+	}
+
+	var memoryReserved string
+	if _, ok := optResReserved[string(v1.ResourceMemory)]; ok {
+		memoryReserved = optResReserved[string(v1.ResourceMemory)]
+	}
+
+	if memoryReserved == "" || cpuReserved == "" {
 		// machine info is guaranteed at starting
 		mi := machineinfo.GetMachineInfo()
 		ReservedRes, err := calculateNodeResourceReservation(klConfig.KubeReserved, klConfig.SystemReserved, klConfig.EvictionHard, mi)
@@ -159,6 +166,7 @@ func calculateNodeResourceReservation(kubeReserved, systemReserved, evictionHard
 }
 
 func init() {
-	config.topoPolicy[v1alpha1.CPUManagerPolicy] = "none"
-	config.topoPolicy[v1alpha1.TopologyManagerPolicy] = "none"
+	config.topoPolicy[v1alpha1.CPUManagerPolicy] = policyNone
+	config.topoPolicy[v1alpha1.TopologyManagerPolicy] = policyNone
+	config.topoPolicy[v1alpha1.MemoryManagerPolicy] = policyNone
 }

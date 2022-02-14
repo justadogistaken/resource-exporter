@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"time"
+
 	"volcano.sh/resource-exporter/pkg/machineinfo"
 
 	"github.com/spf13/pflag"
@@ -48,7 +49,7 @@ func getNumaTopoClient(argument *args.Argument) (*versioned.Clientset, error) {
 	return versioned.NewForConfigOrDie(config), err
 }
 
-func numatopoIsExist(client *versioned.Clientset) (bool, error) {
+func doesNumatopoExist(client *versioned.Clientset) (bool, error) {
 	hostname := os.Getenv("MY_NODE_NAME")
 	if hostname == "" {
 		return false, fmt.Errorf("get Hostname failed")
@@ -88,8 +89,8 @@ func main() {
 	tick := time.NewTicker(opt.CheckInterval)
 	for {
 		select {
-		case <- tick.C:
-			exist, err := numatopoIsExist(nodeInfoClient)
+		case <-tick.C:
+			exist, err := doesNumatopoExist(nodeInfoClient)
 			if err != nil {
 				klog.Errorf("Get numatopo failed, err= %v", err)
 				continue

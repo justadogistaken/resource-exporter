@@ -22,7 +22,7 @@ import (
 	"volcano.sh/resource-exporter/pkg/args"
 )
 
-var numaMap = map[string]NumaInfo{}
+var numaMap = map[numaTopoName]NumaInfo{}
 
 // RegisterNumaType is the function to register the info provider
 func RegisterNumaType(info NumaInfo) {
@@ -52,7 +52,7 @@ func GetAllResAllocatableInfo() map[string]v1alpha1.ResourceInfo {
 	numaResMap := make(map[string]v1alpha1.ResourceInfo)
 
 	for str, info := range numaMap {
-		numaResMap[str] = info.GetResourceInfoMap()
+		numaResMap[string(str)] = info.GetResourceInfoMap()
 	}
 
 	return numaResMap
@@ -60,19 +60,24 @@ func GetAllResAllocatableInfo() map[string]v1alpha1.ResourceInfo {
 
 // GetCpusDetail returns the cpu capability topology info
 func GetCpusDetail() map[string]v1alpha1.CPUInfo {
-	for _, info := range numaMap {
-		obj := info.GetResTopoDetail()
-		cpuDetail, ok := obj.(map[string]v1alpha1.CPUInfo)
-		if !ok {
-			continue
-		}
-
-		return cpuDetail
+	info := numaMap[cpuNumaTopoName]
+	if info == nil {
+		return nil
 	}
 
-	return nil
+	return info.GetResTopoDetail().(map[string]v1alpha1.CPUInfo)
+}
+
+func GetMemoryDetail() map[int]*v1alpha1.MemoryNode {
+	info := numaMap[memoryNumaTopoName]
+	if info == nil {
+		return nil
+	}
+
+	return info.GetResTopoDetail().(map[int]*v1alpha1.MemoryNode)
 }
 
 func init() {
 	RegisterNumaType(NewCPUNumaInfo())
+	RegisterNumaType(NewMemoryNumaInfo())
 }

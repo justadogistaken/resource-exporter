@@ -24,7 +24,7 @@ import (
 
 // NumaInfo is the interface of resource topology data
 type NumaInfo interface {
-	Name() string
+	Name() numaTopoName
 	Update(opt *args.Argument) NumaInfo
 	GetResourceInfoMap() v1alpha1.ResourceInfo
 	GetResTopoDetail() interface{}
